@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-exchanges-table
+      author: Prost3333
+      changes:
+        - createTable:
+            tableName: exchanges
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: suffix
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: country
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false

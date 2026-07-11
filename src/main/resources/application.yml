@@ -1,0 +1,21 @@
+server:
+  port: ${SERVER_PORT:8085}
+
+spring:
+  application:
+    name: trade.handbook
+  datasource:
+    url: jdbc:postgresql://localhost:5440/trade_handbook
+    username: trade
+    password: trade
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
