@@ -6,7 +6,8 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name ="instruments")
+@Table(name = "instruments",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ticker", "exchange_id"}))
 @Builder
 @Getter
 @Setter
@@ -18,7 +19,7 @@ public class Instrument {
     private UUID id;
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false)
     private String ticker;
     @Column(nullable = false,length = 3)
     private String currency;

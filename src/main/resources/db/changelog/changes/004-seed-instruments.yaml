@@ -1,0 +1,123 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-seed-instruments
+      author: Prost3333
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO instruments (id, ticker, name, currency, exchange_id)
+              SELECT gen_random_uuid(), v.ticker, v.name, v.currency, e.id
+              FROM (VALUES
+                -- Xetra (.DE)
+                ('.DE', 'SAP', 'SAP SE', 'EUR'),
+                ('.DE', 'SIE', 'Siemens AG', 'EUR'),
+                -- Frankfurt Stock Exchange (.F)
+                ('.F', 'APC', 'Apple Inc.', 'EUR'),
+                ('.F', 'AMZ', 'Amazon.com', 'EUR'),
+                ('.F', 'TL0', 'Tesla Inc.', 'EUR'),
+                -- Berlin Stock Exchange (.BE)
+                ('.BE', 'APC', 'Apple Inc.', 'EUR'),
+                ('.BE', 'AMZ', 'Amazon.com', 'EUR'),
+                ('.BE', 'MSF', 'Microsoft', 'EUR'),
+                -- Stuttgart Stock Exchange (.SG)
+                ('.SG', 'APC', 'Apple Inc.', 'EUR'),
+                ('.SG', 'AMZ', 'Amazon.com', 'EUR'),
+                ('.SG', 'TL0', 'Tesla Inc.', 'EUR'),
+                -- Munich Stock Exchange (.MU)
+                ('.MU', 'APC', 'Apple Inc.', 'EUR'),
+                ('.MU', 'AMZ', 'Amazon.com', 'EUR'),
+                ('.MU', 'MSF', 'Microsoft', 'EUR'),
+                -- Euronext Amsterdam (.AS)
+                ('.AS', 'ADYEN', 'Adyen NV', 'EUR'),
+                ('.AS', 'HEIA', 'Heineken NV', 'EUR'),
+                ('.AS', 'INGA', 'ING Groep', 'EUR'),
+                -- London Stock Exchange (.L)
+                ('.L', 'SHEL', 'Shell plc', 'GBP'),
+                ('.L', 'AZN', 'AstraZeneca', 'GBP'),
+                ('.L', 'ULVR', 'Unilever', 'GBP'),
+                ('.L', 'BP', 'BP plc', 'GBP'),
+                -- Euronext Paris (.PA)
+                ('.PA', 'OR', 'L''Oreal', 'EUR'),
+                ('.PA', 'TTE', 'TotalEnergies', 'EUR'),
+                ('.PA', 'SAN', 'Sanofi', 'EUR'),
+                -- Euronext Brussels (.BR)
+                ('.BR', 'ABI', 'Anheuser-Busch InBev', 'EUR'),
+                ('.BR', 'KBC', 'KBC Group', 'EUR'),
+                ('.BR', 'SOLB', 'Solvay', 'EUR'),
+                -- Euronext Lisbon (.LS)
+                ('.LS', 'EDP', 'EDP Energias de Portugal', 'EUR'),
+                ('.LS', 'GALP', 'Galp Energia', 'EUR'),
+                ('.LS', 'JMT', 'Jeronimo Martins', 'EUR'),
+                -- Euronext Dublin (.IR)
+                ('.IR', 'RYA', 'Ryanair Holdings', 'EUR'),
+                ('.IR', 'KRZ', 'Kerry Group', 'EUR'),
+                ('.IR', 'BIRG', 'Bank of Ireland Group', 'EUR'),
+                -- Euronext Oslo (.OL)
+                ('.OL', 'EQNR', 'Equinor', 'NOK'),
+                ('.OL', 'DNB', 'DNB Bank', 'NOK'),
+                ('.OL', 'TEL', 'Telenor', 'NOK'),
+                ('.OL', 'MOWI', 'Mowi', 'NOK'),
+                -- Borsa Italiana (.MI)
+                ('.MI', 'ENEL', 'Enel', 'EUR'),
+                ('.MI', 'ISP', 'Intesa Sanpaolo', 'EUR'),
+                ('.MI', 'UCG', 'UniCredit', 'EUR'),
+                ('.MI', 'RACE', 'Ferrari NV', 'EUR'),
+                -- Bolsa de Madrid (.MC)
+                ('.MC', 'SAN', 'Banco Santander', 'EUR'),
+                ('.MC', 'IBE', 'Iberdrola', 'EUR'),
+                ('.MC', 'ITX', 'Inditex', 'EUR'),
+                ('.MC', 'BBVA', 'Banco Bilbao Vizcaya Argentaria', 'EUR'),
+                -- SIX Swiss Exchange (.SW)
+                ('.SW', 'NESN', 'Nestle SA', 'CHF'),
+                ('.SW', 'NOVN', 'Novartis AG', 'CHF'),
+                ('.SW', 'ROG', 'Roche Holding', 'CHF'),
+                ('.SW', 'UBSG', 'UBS Group', 'CHF'),
+                -- Wiener Boerse (.VI)
+                ('.VI', 'EBS', 'Erste Group Bank', 'EUR'),
+                ('.VI', 'OMV', 'OMV AG', 'EUR'),
+                ('.VI', 'VOE', 'Voestalpine', 'EUR'),
+                -- Nasdaq Stockholm (.ST)
+                ('.ST', 'VOLV-B', 'Volvo B', 'SEK'),
+                ('.ST', 'ERIC-B', 'Ericsson B', 'SEK'),
+                ('.ST', 'HM-B', 'Hennes & Mauritz B', 'SEK'),
+                ('.ST', 'INVE-B', 'Investor B', 'SEK'),
+                -- Nasdaq Copenhagen (.CO)
+                ('.CO', 'NOVO-B', 'Novo Nordisk B', 'DKK'),
+                ('.CO', 'MAERSK-B', 'A.P. Moller-Maersk B', 'DKK'),
+                ('.CO', 'CARL-B', 'Carlsberg B', 'DKK'),
+                ('.CO', 'DSV', 'DSV A/S', 'DKK'),
+                -- Nasdaq Helsinki (.HE)
+                ('.HE', 'NOKIA', 'Nokia', 'EUR'),
+                ('.HE', 'NESTE', 'Neste', 'EUR'),
+                ('.HE', 'KNEBV', 'Kone', 'EUR'),
+                ('.HE', 'SAMPO', 'Sampo', 'EUR'),
+                -- Warsaw Stock Exchange (.WA)
+                ('.WA', 'PKO', 'PKO Bank Polski', 'PLN'),
+                ('.WA', 'PZU', 'PZU SA', 'PLN'),
+                ('.WA', 'KGH', 'KGHM Polska Miedz', 'PLN'),
+                -- Prague Stock Exchange (.PR)
+                ('.PR', 'CEZ', 'CEZ Group', 'CZK'),
+                ('.PR', 'KOMB', 'Komercni banka', 'CZK'),
+                ('.PR', 'MONET', 'Moneta Money Bank', 'CZK'),
+                -- Toronto Stock Exchange (.TO)
+                ('.TO', 'SHOP', 'Shopify', 'CAD'),
+                ('.TO', 'RY', 'Royal Bank of Canada', 'CAD'),
+                ('.TO', 'TD', 'Toronto-Dominion Bank', 'CAD'),
+                ('.TO', 'ENB', 'Enbridge', 'CAD'),
+                -- Tokyo Stock Exchange (.T)
+                ('.T', '7203', 'Toyota Motor', 'JPY'),
+                ('.T', '6758', 'Sony Group', 'JPY'),
+                ('.T', '9984', 'SoftBank Group', 'JPY'),
+                ('.T', '8306', 'Mitsubishi UFJ Financial', 'JPY'),
+                -- Hong Kong Stock Exchange (.HK)
+                ('.HK', '0700', 'Tencent Holdings', 'HKD'),
+                ('.HK', '9988', 'Alibaba Group', 'HKD'),
+                ('.HK', '1299', 'AIA Group', 'HKD'),
+                ('.HK', '3690', 'Meituan', 'HKD'),
+                -- Australian Securities Exchange (.AX)
+                ('.AX', 'BHP', 'BHP Group', 'AUD'),
+                ('.AX', 'CBA', 'Commonwealth Bank', 'AUD'),
+                ('.AX', 'CSL', 'CSL Limited', 'AUD'),
+                ('.AX', 'WES', 'Wesfarmers', 'AUD')
+              ) AS v(suffix, ticker, name, currency)
+              JOIN exchanges e ON e.suffix = v.suffix

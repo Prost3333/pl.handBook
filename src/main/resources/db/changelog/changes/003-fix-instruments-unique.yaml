@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-fix-instrument-unique
+      author: Prost3333
+      changes:
+        - dropUniqueConstraint:
+            tableName: instruments
+            constraintName: instruments_ticker_key
+        - addUniqueConstraint:
+            tableName: instruments
+            columnNames: ticker, exchange_id
+            constraintName: uk_instrument_ticker_exchange
