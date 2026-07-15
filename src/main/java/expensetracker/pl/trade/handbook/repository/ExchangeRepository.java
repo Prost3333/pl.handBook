@@ -11,4 +11,7 @@ import java.util.UUID;
 public interface ExchangeRepository extends JpaRepository<Exchange, UUID> {
     Optional<Exchange> findByName(String name);
 
+    boolean existsBySuffix(String suffix);
+
+    boolean existsBySuffixAndIdNot(String suffix, UUID id);
 }

@@ -1,3 +1,5 @@
 package expensetracker.pl.trade.handbook.dto;
 
-public record InstrumentResponse(String ticker, String name, String currency, String exchangeName) {}
+import java.util.UUID;
+
+public record InstrumentResponse(UUID id, String ticker, String name, String currency, String exchangeName) {}

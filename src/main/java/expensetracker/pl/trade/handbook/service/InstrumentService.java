@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +25,20 @@ public class InstrumentService {
     public List<InstrumentResponse> findAllWithExchange() {
         return repository.findAllWithExchange()
                 .stream()
-                .map(i -> new InstrumentResponse(
-                        i.getTicker(),
-                        i.getName(),
-                        i.getCurrency(),
-                        i.getExchange().getName()
-                ))
+                .map(this::toResponse)
                 .toList();
+    }
+
+    public InstrumentResponse findById(UUID id) {
+        return repository.findByIdWithExchange(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Instrument not found: " + id));
     }
 
     @Transactional
     public InstrumentResponse addInstrument(InstrumentRequest request) {
-        Exchange exchange= checkExchange(request.exchangeName());
+        Exchange exchange = checkExchange(request.exchangeName());
 
         if (repository.findByTickerAndExchange(request.ticker(), exchange).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Instrument already exists");
@@ -50,12 +53,27 @@ public class InstrumentService {
                         .build()
         );
 
-        return new InstrumentResponse(
-                instrument.getTicker(),
-                instrument.getName(),
-                instrument.getCurrency(),
-                exchange.getName()
-        );
+        return toResponse(instrument);
+    }
+
+    @Transactional
+    public InstrumentResponse updateInstrument(UUID id, InstrumentRequest request) {
+        Instrument instrument = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Instrument not found: " + id));
+        Exchange exchange = checkExchange(request.exchangeName());
+
+        Optional<Instrument> duplicate = repository.findByTickerAndExchange(request.ticker(), exchange);
+        if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Instrument already exists");
+        }
+
+        instrument.setTicker(request.ticker());
+        instrument.setName(request.name());
+        instrument.setCurrency(request.currency());
+        instrument.setExchange(exchange);
+
+        return toResponse(repository.save(instrument));
     }
 
     public Exchange checkExchange(String exchangeName) {
@@ -65,11 +83,29 @@ public class InstrumentService {
     }
 
     @Transactional
+    public void deleteInstrument(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Instrument not found: " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    @Transactional
     public void deleteInstrument(String ticker, String exchangeName) {
-        Exchange exchange= checkExchange(exchangeName);
+        Exchange exchange = checkExchange(exchangeName);
         Instrument instrument = repository.findByTickerAndExchange(ticker, exchange)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Instrument not found: " + ticker));
         repository.delete(instrument);
+    }
+
+    private InstrumentResponse toResponse(Instrument instrument) {
+        return new InstrumentResponse(
+                instrument.getId(),
+                instrument.getTicker(),
+                instrument.getName(),
+                instrument.getCurrency(),
+                instrument.getExchange().getName()
+        );
     }
 }
