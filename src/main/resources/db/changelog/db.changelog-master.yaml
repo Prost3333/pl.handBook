@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-fix-instruments-unique.yaml
   - include:
       file: db/changelog/changes/004-seed-instruments.yaml
+  - include:
+      file: db\changelog\changes\005-create-category-many-to-many.yaml

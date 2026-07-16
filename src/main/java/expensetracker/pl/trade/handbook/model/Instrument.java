@@ -3,6 +3,8 @@ package expensetracker.pl.trade.handbook.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -26,4 +28,11 @@ public class Instrument {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_id", nullable = false)
     private Exchange exchange;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "instrument_category",
+            joinColumns = @JoinColumn(name = "instrument_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
 }

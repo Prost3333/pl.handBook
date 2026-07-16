@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-category-many-to-many
+      author: Prost3333
+      changes:
+        - createTable:
+            tableName: categories
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+        - createTable:
+            tableName: instrument_category
+            columns:
+              - column:
+                  name: instrument_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: category_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: instrument_category
+            columnNames: instrument_id, category_id
+            constraintName: pk_instrument_category
+
+        - addForeignKeyConstraint:
+            baseTableName: instrument_category
+            baseColumnNames: instrument_id
+            referencedTableName: instruments
+            referencedColumnNames: id
+            constraintName: fk_ic_instrument
+
+        - addForeignKeyConstraint:
+            baseTableName: instrument_category
+            baseColumnNames: category_id
+            referencedTableName: categories
+            referencedColumnNames: id
+            constraintName: fk_ic_category
