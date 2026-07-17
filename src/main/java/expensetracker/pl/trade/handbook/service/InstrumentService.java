@@ -2,8 +2,10 @@ package expensetracker.pl.trade.handbook.service;
 
 import expensetracker.pl.trade.handbook.dto.InstrumentRequest;
 import expensetracker.pl.trade.handbook.dto.InstrumentResponse;
+import expensetracker.pl.trade.handbook.model.Category;
 import expensetracker.pl.trade.handbook.model.Exchange;
 import expensetracker.pl.trade.handbook.model.Instrument;
+import expensetracker.pl.trade.handbook.repository.CategoryRepository;
 import expensetracker.pl.trade.handbook.repository.ExchangeRepository;
 import expensetracker.pl.trade.handbook.repository.InstrumentRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class InstrumentService {
     private final InstrumentRepository repository;
     private final ExchangeRepository exchangeRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<InstrumentResponse> findAllWithExchange() {
         return repository.findAllWithExchange()
@@ -108,4 +111,19 @@ public class InstrumentService {
                 instrument.getExchange().getName()
         );
     }
+
+    @Transactional
+    public InstrumentResponse addCategoryToInstrument(UUID instrumentId, String categoryName) {
+        Instrument instrument=repository.findById(instrumentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instrument not found"));
+
+        Category category=categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+
+        instrument.addCategory(category);
+
+        return toResponse(instrument);
+    }
+
+
 }

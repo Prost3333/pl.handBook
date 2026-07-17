@@ -58,4 +58,11 @@ public class InstrumentController {
     public void deleteInstrument(@RequestParam String ticker, @RequestParam String exchangeName) {
         service.deleteInstrument(ticker, exchangeName);
     }
+
+    @PostMapping("/instruments/{id}/categories")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "add category to instrument")
+    public InstrumentResponse addCategory(@PathVariable UUID id, @RequestParam String category) {
+        return service.addCategoryToInstrument(id, category);
+    }
 }
