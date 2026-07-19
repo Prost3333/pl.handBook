@@ -2,6 +2,7 @@ package expensetracker.pl.trade.handbook.service;
 
 import expensetracker.pl.trade.handbook.dto.InstrumentRequest;
 import expensetracker.pl.trade.handbook.dto.InstrumentResponse;
+import expensetracker.pl.trade.handbook.dto.InstrumentWithCategoryResp;
 import expensetracker.pl.trade.handbook.model.Category;
 import expensetracker.pl.trade.handbook.model.Exchange;
 import expensetracker.pl.trade.handbook.model.Instrument;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,12 @@ public class InstrumentService {
     private final InstrumentRepository repository;
     private final ExchangeRepository exchangeRepository;
     private final CategoryRepository categoryRepository;
+
+    public List<InstrumentWithCategoryResp>findAllWithCategory(){
+        List<Instrument> all=repository.findAllWithCategories();
+        return all.stream().map(this::toResponseWithCategory).toList();
+
+    }
 
     public List<InstrumentResponse> findAllWithExchange() {
         return repository.findAllWithExchange()
@@ -109,6 +117,16 @@ public class InstrumentService {
                 instrument.getName(),
                 instrument.getCurrency(),
                 instrument.getExchange().getName()
+        );
+    }
+    private InstrumentWithCategoryResp toResponseWithCategory(Instrument instrument) {
+        return new InstrumentWithCategoryResp(
+                instrument.getId(),
+                instrument.getTicker(),
+                instrument.getName(),
+                instrument.getCurrency(),
+                instrument.getExchange().getName(),
+                instrument.getCategories().stream().map(Category::getName).collect(Collectors.joining())
         );
     }
 

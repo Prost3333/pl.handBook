@@ -10,4 +10,3 @@ databaseChangeLog:
               (gen_random_uuid(), 'Equity'),
               (gen_random_uuid(), 'Bond'),
               (gen_random_uuid(), 'Technology');
-              

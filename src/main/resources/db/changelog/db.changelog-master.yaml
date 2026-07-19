@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db\changelog\changes\005-create-category-many-to-many.yaml
   - include:
       file: db\changelog\changes\006-seed-category.yaml
+  - include:
+      file: db/changelog/changes/007-seed-instrument-category.yaml

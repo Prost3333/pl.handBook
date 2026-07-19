@@ -16,6 +16,15 @@ public interface InstrumentRepository extends JpaRepository<Instrument, UUID> {
     @Query("SELECT i FROM Instrument i JOIN FETCH i.exchange e")
     List<Instrument> findAllWithExchange();
 
+
+    @Query("""
+    SELECT DISTINCT i
+    FROM Instrument i
+    JOIN FETCH i.exchange
+    LEFT JOIN FETCH i.categories
+    """)
+    List<Instrument> findAllWithCategories();
+
     @Query("SELECT i FROM Instrument i JOIN FETCH i.exchange e WHERE i.id = :id")
     Optional<Instrument> findByIdWithExchange(@Param("id") UUID id);
 

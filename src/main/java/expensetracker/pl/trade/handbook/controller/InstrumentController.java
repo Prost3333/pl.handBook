@@ -2,6 +2,7 @@ package expensetracker.pl.trade.handbook.controller;
 
 import expensetracker.pl.trade.handbook.dto.InstrumentRequest;
 import expensetracker.pl.trade.handbook.dto.InstrumentResponse;
+import expensetracker.pl.trade.handbook.dto.InstrumentWithCategoryResp;
 import expensetracker.pl.trade.handbook.service.InstrumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,12 @@ import java.util.UUID;
 @Tag(name = "Instruments", description = "CRUD operations for trading instruments")
 public class InstrumentController {
     private final InstrumentService service;
+
+    @GetMapping("/getAllWithCategory")
+    @Operation(summary = "Get all with Category")
+    public List<InstrumentWithCategoryResp> getAllWithCategory() {
+        return service.findAllWithCategory();
+    }
 
     @GetMapping
     @Operation(summary = "Get all instruments with their exchanges")
