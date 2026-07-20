@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001b-seed-exchanges
+      author: Prost3333
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO exchanges (id, suffix, name, country)
+              SELECT gen_random_uuid(), v.suffix, v.name, v.country
+              FROM (VALUES
+                ('.DE', 'Xetra', 'Germany'),
+                ('.F',  'Frankfurt Stock Exchange', 'Germany'),
+                ('.BE', 'Berlin Stock Exchange', 'Germany'),
+                ('.SG', 'Stuttgart Stock Exchange', 'Germany'),
+                ('.MU', 'Munich Stock Exchange', 'Germany'),
+                ('.AS', 'Euronext Amsterdam', 'Netherlands'),
+                ('.L',  'London Stock Exchange', 'United Kingdom'),
+                ('.PA', 'Euronext Paris', 'France'),
+                ('.BR', 'Euronext Brussels', 'Belgium'),
+                ('.LS', 'Euronext Lisbon', 'Portugal'),
+                ('.IR', 'Euronext Dublin', 'Ireland'),
+                ('.OL', 'Euronext Oslo', 'Norway'),
+                ('.MI', 'Borsa Italiana', 'Italy'),
+                ('.MC', 'Bolsa de Madrid', 'Spain'),
+                ('.SW', 'SIX Swiss Exchange', 'Switzerland'),
+                ('.VI', 'Wiener Boerse', 'Austria'),
+                ('.ST', 'Nasdaq Stockholm', 'Sweden'),
+                ('.CO', 'Nasdaq Copenhagen', 'Denmark'),
+                ('.HE', 'Nasdaq Helsinki', 'Finland'),
+                ('.WA', 'Warsaw Stock Exchange', 'Poland'),
+                ('.PR', 'Prague Stock Exchange', 'Czech Republic'),
+                ('.TO', 'Toronto Stock Exchange', 'Canada'),
+                ('.T',  'Tokyo Stock Exchange', 'Japan'),
+                ('.HK', 'Hong Kong Stock Exchange', 'Hong Kong'),
+                ('.AX', 'Australian Securities Exchange', 'Australia')
+              ) AS v(suffix, name, country)
+              ON CONFLICT (suffix) DO NOTHING;

@@ -7,6 +7,5 @@ databaseChangeLog:
             sql: |
               INSERT INTO categories (id, name) VALUES
               (gen_random_uuid(), 'ETF'),
-              (gen_random_uuid(), 'Equity'),
               (gen_random_uuid(), 'Bond'),
-              (gen_random_uuid(), 'Technology');
+              (gen_random_uuid(), 'Share');

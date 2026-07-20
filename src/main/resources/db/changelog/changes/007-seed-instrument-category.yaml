@@ -5,32 +5,9 @@ databaseChangeLog:
       changes:
         - sql:
             sql: |
-              -- all instruments are stocks -> Equity
+              -- all seeded instruments are stocks -> Share
               INSERT INTO instrument_category (instrument_id, category_id)
               SELECT i.id, c.id
               FROM instruments i
-              JOIN categories c ON c.name = 'Equity'
-              ON CONFLICT DO NOTHING;
-
-              -- tech companies additionally get Technology
-              INSERT INTO instrument_category (instrument_id, category_id)
-              SELECT i.id, c.id
-              FROM instruments i
-              JOIN categories c ON c.name = 'Technology'
-              WHERE i.name IN (
-                'SAP SE',
-                'Apple Inc.',
-                'Amazon.com',
-                'Tesla Inc.',
-                'Microsoft',
-                'Adyen NV',
-                'Nokia',
-                'Ericsson B',
-                'Sony Group',
-                'SoftBank Group',
-                'Tencent Holdings',
-                'Alibaba Group',
-                'Meituan',
-                'Shopify'
-              )
+              JOIN categories c ON c.name = 'Share'
               ON CONFLICT DO NOTHING;

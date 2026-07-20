@@ -18,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -126,7 +125,7 @@ public class InstrumentService {
                 instrument.getName(),
                 instrument.getCurrency(),
                 instrument.getExchange().getName(),
-                instrument.getCategories().stream().map(Category::getName).collect(Collectors.joining())
+                instrument.getCategories().stream().map(Category::getName).sorted().toList()
         );
     }
 
