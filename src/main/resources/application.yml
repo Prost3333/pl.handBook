@@ -19,3 +19,39 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+
+market-data:
+  cache-ttl: PT30M
+  cache-size: 500
+  refresh:
+    enabled: true
+    # after the European close; the free quota cannot sustain anything more frequent
+    cron: "0 30 18 * * MON-FRI"
+
+  # No key, no quota, real-time - but addressed by ISIN and only XETR/XFRA answer.
+  # XBER / XSTU / XMUN were tested and return HTTP 400, so .BE / .SG / .MU stay unmapped.
+  boerse-frankfurt:
+    enabled: true
+    base-url: https://api.boerse-frankfurt.de
+    mic-map:
+      "[.DE]": XETR
+      "[.F]": XFRA
+
+  # Global fallback, 25 calls/day on the free key. Unmapped exchanges are simply not served.
+  # Only the suffixes below are documented by Alpha Vantage. Before adding more, look the
+  # symbol up with SYMBOL_SEARCH using your own key - guessed suffixes silently return no data:
+  #   curl "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=heineken&apikey=KEY"
+  alpha-vantage:
+    enabled: true
+    base-url: https://www.alphavantage.co
+    api-key: ${ALPHA_VANTAGE_API_KEY:}
+    daily-limit: 25
+    suffix-map:
+      "[.L]": .LON
+      "[.TO]": .TRT
+      "[.DE]": .DEX
+
+  # ECB reference rates, no key.
+  fx:
+    enabled: true
+    base-url: https://api.frankfurter.dev

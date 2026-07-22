@@ -36,7 +36,7 @@ class InstrumentControllerTest {
 
     private final UUID id = UUID.randomUUID();
     private final InstrumentResponse response =
-            new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ");
+            new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ","US0378331005");
 
     @Test
     void getAllReturnsInstruments() throws Exception {
@@ -69,35 +69,40 @@ class InstrumentControllerTest {
 
     @Test
     void addReturns201() throws Exception {
-        when(service.addInstrument(new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ")))
+        when(service.addInstrument(new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005")))
                 .thenReturn(response);
 
         mockMvc.perform(post("/instrument")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\"}"))
+                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\"" +
+                                ",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\",\"isin\":\"US0378331005\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(id.toString()));
     }
 
     @Test
     void addReturns409OnDuplicate() throws Exception {
-        when(service.addInstrument(new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ")))
+        when(service.addInstrument(new InstrumentRequest("AAPL", "Apple",
+                "USD", "NASDAQ", "US0378331005")))
                 .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Instrument already exists"));
 
         mockMvc.perform(post("/instrument")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\"}"))
+                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\"" +
+                                ",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\",\"isin\":\"US0378331005\"}"))
                 .andExpect(status().isConflict());
     }
 
     @Test
     void updateReturnsUpdatedInstrument() throws Exception {
-        when(service.updateInstrument(eq(id), eq(new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ"))))
+        when(service.updateInstrument(eq(id), eq(new InstrumentRequest("AAPL", "Apple",
+                "USD", "NASDAQ","US0378331005"))))
                 .thenReturn(response);
 
         mockMvc.perform(put("/instrument/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\"}"))
+                        .content("{\"ticker\":\"AAPL\",\"name\":\"Apple\"" +
+                                ",\"currency\":\"USD\",\"exchangeName\":\"NASDAQ\",\"isin\":\"US0378331005\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ticker").value("AAPL"));
     }

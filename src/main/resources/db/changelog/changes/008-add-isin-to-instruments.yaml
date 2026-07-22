@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-add-isin-to-instruments
+      author: Prost3333
+      changes:
+        - addColumn:
+            tableName: instruments
+            columns:
+              - column:
+                  name: isin
+                  type: VARCHAR(12)
+        - createIndex:
+            tableName: instruments
+            indexName: idx_instruments_isin
+            columns:
+              - column:
+                  name: isin

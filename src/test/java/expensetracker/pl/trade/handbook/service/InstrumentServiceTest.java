@@ -56,12 +56,13 @@ class InstrumentServiceTest {
                 .build();
     }
 
-    private Instrument instrument(UUID id, String ticker, String name, String currency) {
+    private Instrument instrument(UUID id, String ticker, String name, String currency, String isin) {
         return Instrument.builder()
                 .id(id)
                 .ticker(ticker)
                 .name(name)
                 .currency(currency)
+                .isin(isin)
                 .exchange(nasdaq)
                 .categories(new HashSet<>())
                 .build();
@@ -71,23 +72,25 @@ class InstrumentServiceTest {
     void findAllWithExchangeReturnsMappedResponses() {
         UUID id = UUID.randomUUID();
         when(repository.findAllWithExchange())
-                .thenReturn(List.of(instrument(id, "AAPL", "Apple", "USD")));
+                .thenReturn(List.of(instrument(id, "AAPL", "Apple", "USD","US0378331005")));
 
         List<InstrumentResponse> result = service.findAllWithExchange();
 
         assertThat(result)
-                .containsExactly(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ"));
+                .containsExactly(new InstrumentResponse(id, "AAPL", "Apple", "USD"
+                        , "NASDAQ","US0378331005"));
     }
 
     @Test
     void findByIdReturnsResponse() {
         UUID id = UUID.randomUUID();
         when(repository.findByIdWithExchange(id))
-                .thenReturn(Optional.of(instrument(id, "AAPL", "Apple", "USD")));
+                .thenReturn(Optional.of(instrument(id, "AAPL", "Apple", "USD","US0378331005")));
 
         InstrumentResponse result = service.findById(id);
 
-        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ"));
+        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple",
+                "USD", "NASDAQ","US0378331005"));
     }
 
     @Test
@@ -100,11 +103,26 @@ class InstrumentServiceTest {
                 .extracting(e -> ((ResponseStatusException) e).getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
+    @Test
+    void updateInstrumentKeepsIsinWhenRequestHasNone() {
+        UUID id = UUID.randomUUID();
+        Instrument existing = instrument(id, "ENR", "Siemens Energy", "EUR", "DE000ENER6Y0");
+        InstrumentRequest request =
+                new InstrumentRequest("ENR", "Siemens Energy AG", "EUR", "NASDAQ", null);
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
+        when(repository.findByTickerAndExchange("ENR", nasdaq)).thenReturn(Optional.empty());
+        when(repository.save(existing)).thenReturn(existing);
+
+        InstrumentResponse result = service.updateInstrument(id, request);
+
+        assertThat(result.isin()).isEqualTo("DE000ENER6Y0");
+    }
 
     @Test
     void addInstrumentSavesAndReturnsResponse() {
         UUID id = UUID.randomUUID();
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005");
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq)).thenReturn(Optional.empty());
         when(repository.save(any(Instrument.class)))
@@ -116,12 +134,12 @@ class InstrumentServiceTest {
 
         InstrumentResponse result = service.addInstrument(request);
 
-        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ"));
+        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ","US0378331005"));
     }
 
     @Test
     void addInstrumentThrowsNotFoundWhenExchangeMissing() {
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "UNKNOWN");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "UNKNOWN","US0378331005");
         when(exchangeRepository.findByName("UNKNOWN")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.addInstrument(request))
@@ -133,10 +151,10 @@ class InstrumentServiceTest {
 
     @Test
     void addInstrumentThrowsConflictOnDuplicateTicker() {
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005");
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq))
-                .thenReturn(Optional.of(instrument(UUID.randomUUID(), "AAPL", "Apple", "USD")));
+                .thenReturn(Optional.of(instrument(UUID.randomUUID(), "AAPL", "Apple", "USD","US0378331005")));
 
         assertThatThrownBy(() -> service.addInstrument(request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -148,8 +166,8 @@ class InstrumentServiceTest {
     @Test
     void updateInstrumentUpdatesFields() {
         UUID id = UUID.randomUUID();
-        Instrument existing = instrument(id, "OLD", "Old name", "EUR");
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ");
+        Instrument existing = instrument(id, "OLD", "Old name", "EUR","US0378331005");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005");
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq)).thenReturn(Optional.empty());
@@ -157,14 +175,14 @@ class InstrumentServiceTest {
 
         InstrumentResponse result = service.updateInstrument(id, request);
 
-        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ"));
+        assertThat(result).isEqualTo(new InstrumentResponse(id, "AAPL", "Apple", "USD", "NASDAQ","US0378331005"));
     }
 
     @Test
     void updateInstrumentAllowsSameTickerForSameInstrument() {
         UUID id = UUID.randomUUID();
-        Instrument existing = instrument(id, "AAPL", "Apple", "USD");
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple Inc.", "USD", "NASDAQ");
+        Instrument existing = instrument(id, "AAPL", "Apple", "USD","US0378331005");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple Inc.", "USD", "NASDAQ","US0378331005");
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq)).thenReturn(Optional.of(existing));
@@ -178,9 +196,9 @@ class InstrumentServiceTest {
     @Test
     void updateInstrumentThrowsConflictWhenTickerTakenByAnother() {
         UUID id = UUID.randomUUID();
-        Instrument existing = instrument(id, "OLD", "Old name", "EUR");
-        Instrument other = instrument(UUID.randomUUID(), "AAPL", "Apple", "USD");
-        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ");
+        Instrument existing = instrument(id, "OLD", "Old name", "EUR","US0378331005");
+        Instrument other = instrument(UUID.randomUUID(), "AAPL", "Apple", "USD","US0378331005");
+        InstrumentRequest request = new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005");
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq)).thenReturn(Optional.of(other));
@@ -198,7 +216,7 @@ class InstrumentServiceTest {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.updateInstrument(id,
-                new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ")))
+                new InstrumentRequest("AAPL", "Apple", "USD", "NASDAQ","US0378331005")))
                 .isInstanceOf(ResponseStatusException.class)
                 .extracting(e -> ((ResponseStatusException) e).getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
@@ -228,7 +246,7 @@ class InstrumentServiceTest {
 
     @Test
     void deleteInstrumentByTickerDeletes() {
-        Instrument existing = instrument(UUID.randomUUID(), "AAPL", "Apple", "USD");
+        Instrument existing = instrument(UUID.randomUUID(), "AAPL", "Apple", "USD", "US0378331005");
         when(exchangeRepository.findByName("NASDAQ")).thenReturn(Optional.of(nasdaq));
         when(repository.findByTickerAndExchange("AAPL", nasdaq)).thenReturn(Optional.of(existing));
 
@@ -262,7 +280,7 @@ class InstrumentServiceTest {
     @Test
     void addCategoryToInstrumentLinksBothSides() {
         UUID id = UUID.randomUUID();
-        Instrument existing = instrument(id, "AAPL", "Apple", "USD");
+        Instrument existing = instrument(id, "AAPL", "Apple", "USD","US0378331005");
         Category category = Category.builder()
                 .id(UUID.randomUUID())
                 .name("Tech")
@@ -292,7 +310,7 @@ class InstrumentServiceTest {
     @Test
     void addCategoryToInstrumentThrowsNotFoundWhenCategoryMissing() {
         UUID id = UUID.randomUUID();
-        when(repository.findById(id)).thenReturn(Optional.of(instrument(id, "AAPL", "Apple", "USD")));
+        when(repository.findById(id)).thenReturn(Optional.of(instrument(id, "AAPL", "Apple", "USD","US0378331005")));
         when(categoryRepository.findByName("Tech")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.addCategoryToInstrument(id, "Tech"))

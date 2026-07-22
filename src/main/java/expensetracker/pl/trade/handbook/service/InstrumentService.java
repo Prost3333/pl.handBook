@@ -60,6 +60,7 @@ public class InstrumentService {
                         .name(request.name())
                         .currency(request.currency())
                         .exchange(exchange)
+                        .isin(request.isin())
                         .build()
         );
 
@@ -76,6 +77,9 @@ public class InstrumentService {
         Optional<Instrument> duplicate = repository.findByTickerAndExchange(request.ticker(), exchange);
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Instrument already exists");
+        }
+        if (request.isin() != null) {
+            instrument.setIsin(request.isin());
         }
 
         instrument.setTicker(request.ticker());
@@ -115,7 +119,8 @@ public class InstrumentService {
                 instrument.getTicker(),
                 instrument.getName(),
                 instrument.getCurrency(),
-                instrument.getExchange().getName()
+                instrument.getExchange().getName(),
+                instrument.getIsin()
         );
     }
     private InstrumentWithCategoryResp toResponseWithCategory(Instrument instrument) {
@@ -125,7 +130,8 @@ public class InstrumentService {
                 instrument.getName(),
                 instrument.getCurrency(),
                 instrument.getExchange().getName(),
-                instrument.getCategories().stream().map(Category::getName).sorted().toList()
+                instrument.getCategories().stream().map(Category::getName).sorted().toList(),
+                instrument.getIsin()
         );
     }
 

@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-seed-isin-german-venues
+      author: Prost3333
+      comment: >
+        The Boerse Frankfurt provider addresses instruments by ISIN, so the German-venue rows
+        need one before it can serve them. Foreign shares keep their home ISIN when listed in
+        Frankfurt. Every value below was verified against the live quote_box endpoint.
+      changes:
+        - sql:
+            sql: |
+              UPDATE instruments i
+              SET isin = v.isin
+              FROM (VALUES
+                ('SAP', 'DE0007164600'),
+                ('SIE', 'DE0007236101'),
+                ('APC', 'US0378331005'),
+                ('AMZ', 'US0231351067'),
+                ('TL0', 'US88160R1014'),
+                ('MSF', 'US5949181045')
+              ) AS v(ticker, isin)
+              WHERE i.ticker = v.ticker
+                AND i.exchange_id IN (
+                  SELECT id FROM exchanges WHERE suffix IN ('.DE', '.F', '.BE', '.SG', '.MU')
+                )

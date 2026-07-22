@@ -25,6 +25,8 @@ public class Instrument {
     private String ticker;
     @Column(nullable = false,length = 3)
     private String currency;
+    @Column(length = 12)
+    private String isin;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_id", nullable = false)
     private Exchange exchange;

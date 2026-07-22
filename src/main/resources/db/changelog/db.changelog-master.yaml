@@ -15,3 +15,9 @@ databaseChangeLog:
       file: db\changelog\changes\006-seed-category.yaml
   - include:
       file: db/changelog/changes/007-seed-instrument-category.yaml
+  - include:
+      file: db/changelog/changes/008-add-isin-to-instruments.yaml
+  - include:
+      file: db/changelog/changes/009-create-instrument-prices.yaml
+  - include:
+      file: db/changelog/changes/010-seed-isin-german-venues.yaml

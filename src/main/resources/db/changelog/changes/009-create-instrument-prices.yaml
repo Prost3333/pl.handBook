@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-instrument-prices
+      author: Prost3333
+      changes:
+        - createTable:
+            tableName: instrument_prices
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: instrument_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: NUMERIC(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: previous_close
+                  type: NUMERIC(19,4)
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: as_of
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: instrument_prices
+            baseColumnNames: instrument_id
+            referencedTableName: instruments
+            referencedColumnNames: id
+            constraintName: fk_price_instrument
+
+        - createIndex:
+            tableName: instrument_prices
+            indexName: idx_prices_instrument_as_of
+            columns:
+              - column:
+                  name: instrument_id
+              - column:
+                  name: as_of
