@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Handbook — инструменты</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0b0d12;
+            --surface: #141821;
+            --surface-2: #1a2029;
+            --surface-3: #212836;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.13);
+            --text: #f2f5f9;
+            --text-2: #9aa4b2;
+            --text-3: #6b7482;
+            --accent: #3987e5;
+            --accent-soft: rgba(57, 135, 229, 0.14);
+            --up: #0ca30c;
+            --up-soft: rgba(12, 163, 12, 0.13);
+            --down: #e05d5d;
+            --down-soft: rgba(224, 93, 93, 0.12);
+            --grid: #232a35;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scrollbar-gutter: stable; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* мягкое свечение фона */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(600px 320px at 12% -5%, rgba(57, 135, 229, 0.10), transparent 70%),
+                radial-gradient(700px 380px at 90% 0%, rgba(144, 133, 233, 0.07), transparent 70%);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px 48px;
+            z-index: 1;
+        }
+
+        /* ===== Шапка ===== */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            background: rgba(11, 13, 18, 0.72);
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3987e5, #9085e9);
+            display: grid; place-items: center;
+            font-weight: 800; font-size: 16px; color: #fff;
+            box-shadow: 0 4px 14px rgba(57, 135, 229, 0.35);
+        }
+        .brand-name { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+        .brand-sub { font-size: 12px; color: var(--text-3); }
+        .topbar-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .updated-at { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+        @media (max-width: 640px) {
+            .brand-sub, .updated-at { display: none; }
+            .topbar-inner { padding: 12px 16px; }
+            .container { padding: 0 14px 40px; }
+        }
+
+        /* ===== Кнопки ===== */
+        button {
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s, transform 0.1s;
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:active:not(:disabled) { transform: translateY(1px); }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 18px;
+        }
+        .btn-primary:hover:not(:disabled) { background: #2a78d6; }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            color: var(--text-2);
+            padding: 8px 14px;
+            font-weight: 500;
+        }
+        .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+        .btn-ghost.danger:hover:not(:disabled) { border-color: var(--down); color: var(--down); }
+
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 11px 13px;
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .section { margin-top: 24px; }
+
+        /* Плитки-показатели */
+        .tiles {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        @media (max-width: 1000px) { .tiles { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 560px)  { .tiles { grid-template-columns: 1fr; } }
+
+        .tile {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            min-width: 0;
+        }
+        .tile-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 60%);
+        }
+        .tile-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-2);
+            letter-spacing: 0.3px;
+        }
+        .hero-value {
+            font-size: clamp(30px, 3.4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.15;
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+        .hero-note { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+
+        .tile-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-top: 8px; }
+        .tile-sub { font-size: 13px; margin-top: 4px; color: var(--text-2); }
+        .tile .ticker-big { font-size: 20px; font-weight: 700; margin-top: 8px; }
+
+        .up   { color: var(--up); }
+        .down { color: var(--down); }
+        .flat { color: var(--text-2); }
+
+        .pill {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+            vertical-align: middle;
+        }
+        .pill.up   { background: var(--up-soft);   color: var(--up); }
+        .pill.down { background: var(--down-soft); color: var(--down); }
+        .pill.flat { background: var(--surface-3); color: var(--text-2); }
+
+        /* Карточки */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            min-width: 0;
+        }
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .card-head h2 { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+        .card-head .head-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        .grid-main {
+            display: grid;
+            grid-template-columns: 330px 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 980px) { .grid-main { grid-template-columns: 1fr; } }
+
+        .grid-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 980px) { .grid-charts { grid-template-columns: 1fr; } }
+
+        .chart-wrap { position: relative; height: 300px; }
+        .chart-wrap.tall { height: 330px; }
+
+        /* Легенда доната */
+        .donut-legend { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .donut-legend-item {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13px;
+        }
+        .donut-legend-item .swatch {
+            width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+        }
+        .donut-legend-item .lt { font-weight: 600; }
+        .donut-legend-item .lp { margin-left: auto; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+        /* Таблицы */
+        .search-input {
+            width: 190px;
+            padding: 8px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th {
+            text-align: left;
+            color: var(--text-3);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 8px 7px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            user-select: none;
+        }
+        th.sortable { cursor: pointer; }
+        th.sortable:hover { color: var(--text); }
+        th.sorted { color: var(--accent); }
+        th .arr { font-size: 10px; margin-left: 3px; }
+        th.num, td.num { text-align: right; }
+        td {
+            padding: 11px 7px;
+            border-bottom: 1px solid var(--border);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        tbody tr { transition: background 0.12s; }
+        tbody tr.clickable { cursor: pointer; }
+        tbody tr:hover { background: var(--surface-2); }
+        tr:last-child td { border-bottom: none; }
+        .ticker { font-weight: 700; }
+        .name-dim { color: var(--text-3); font-size: 11.5px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+        td.pl-up { color: var(--up); font-weight: 600; }
+        td.pl-down { color: var(--down); font-weight: 600; }
+
+        .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .tag {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            background: var(--surface-3);
+            border-radius: 6px;
+            padding: 2px 8px;
+        }
+        .cur-chip {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-2);
+            background: var(--surface-3);
+            border-radius: 6px;
+            padding: 2px 7px;
+        }
+
+        .badge-na {
+            display: inline-block;
+            font-size: 11px;
+            color: var(--text-3);
+            background: var(--surface-3);
+            border-radius: 5px;
+            padding: 2px 8px;
+        }
+        .badge-stale {
+            display: inline-block;
+            font-size: 10px;
+            color: var(--down);
+            background: var(--down-soft);
+            border-radius: 5px;
+            padding: 1px 6px;
+            margin-left: 6px;
+            vertical-align: 1px;
+        }
+
+        .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+        .row-del, .row-mini {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-3);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1;
+            padding: 5px 8px;
+            border-radius: 7px;
+        }
+        .row-mini:hover { color: var(--accent); border-color: var(--accent); }
+        .row-del:hover { color: var(--down); border-color: var(--down); }
+        .row-del.armed { color: #fff; background: var(--down); border-color: var(--down); }
+
+        .loading { text-align: center; color: var(--text-3); padding: 40px; font-size: 13px; }
+        .empty-state { text-align: center; padding: 44px 20px; color: var(--text-2); }
+        .empty-state .big { font-size: 34px; margin-bottom: 10px; }
+        .empty-state .hint { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+        .refreshing { opacity: 0.55; transition: opacity 0.2s; pointer-events: none; }
+
+        .skeleton {
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+        @keyframes shimmer { to { background-position: -200% 0; } }
+        @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+        /* Формы */
+        .instrument-form {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 0.9fr 1.2fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+        @media (max-width: 900px) { .instrument-form { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 560px) { .instrument-form { grid-template-columns: 1fr; } }
+        .instrument-form .field { margin-bottom: 0; }
+
+        .exchange-form {
+            display: grid;
+            grid-template-columns: 1.4fr 0.8fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+        @media (max-width: 700px) { .exchange-form { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 460px) { .exchange-form { grid-template-columns: 1fr; } }
+        .exchange-form .field { margin-bottom: 0; }
+
+        /* Переключатели периодов */
+        .period-switch { display: flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px; }
+        .period-btn {
+            padding: 5px 11px;
+            background: transparent;
+            color: var(--text-2);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 7px;
+        }
+        .period-btn:hover { color: var(--text); }
+        .period-btn.active { background: var(--surface-3); color: var(--text); }
+
+        /* Модалка деталей инструмента */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(6, 8, 12, 0.66);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 24px;
+            animation: fade-in 0.18s ease-out;
+        }
+        .modal-overlay.open { display: flex; }
+        @keyframes fade-in { from { opacity: 0; } }
+        .modal {
+            width: 100%;
+            max-width: 520px;
+            background: linear-gradient(180deg, var(--surface-2), var(--surface));
+            border: 1px solid var(--border-strong);
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+            animation: modal-in 0.22s ease-out;
+        }
+        @keyframes modal-in { from { transform: translateY(14px); opacity: 0; } }
+        .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+        .modal-head h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .modal-head .sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+        .modal-close {
+            background: transparent; border: 1px solid var(--border-strong);
+            color: var(--text-2); width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        }
+        .modal-close:hover { color: var(--text); border-color: var(--accent); }
+
+        .price-hero { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+        .price-big { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+        .price-change { font-size: 15px; font-weight: 700; }
+
+        .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; margin-top: 20px; }
+        .kv { min-width: 0; }
+        .kv .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-3); font-weight: 600; }
+        .kv .v { font-size: 15px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+        .modal-section { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 18px; }
+        .modal-section h3 { font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+        .trend-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+        .trend-main { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .trend-sub { font-size: 12.5px; color: var(--text-3); }
+
+        .cat-add { display: flex; gap: 8px; margin-top: 12px; }
+        .cat-add input {
+            flex: 1;
+            padding: 9px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+        .cat-add input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+        /* Тосты */
+        #toasts {
+            position: fixed;
+            right: 20px; bottom: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+            z-index: 300;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13.5px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            animation: toast-in 0.25s ease-out;
+            max-width: 340px;
+        }
+        @keyframes toast-in { from { transform: translateY(12px); opacity: 0; } }
+        .toast.out { transition: opacity 0.3s, transform 0.3s; opacity: 0; transform: translateY(8px); }
+        .toast .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .toast.ok .dot { background: var(--up); }
+        .toast.err .dot { background: var(--down); }
+        .toast.info .dot { background: var(--accent); }
+        @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">T</div>
+            <div>
+                <div class="brand-name">Trade Handbook</div>
+                <div class="brand-sub">Справочник инструментов и котировок</div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <span class="updated-at" id="updated-at"></span>
+            <button class="btn-ghost" id="refresh-btn" onclick="refreshAll()">Обновить</button>
+            <button class="btn-ghost" id="refresh-prices-btn" onclick="loadPrices(true)">Обновить цены</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Плитки-показатели -->
+    <div class="tiles" id="tiles">
+        <div class="tile tile-hero">
+            <div class="tile-label">Инструментов в справочнике</div>
+            <div class="hero-value" id="total-instruments"><span class="skeleton" style="display:inline-block;width:120px;height:40px"></span></div>
+            <div class="hero-note" id="instruments-note"></div>
+        </div>
+        <div class="tile">
+            <div class="tile-label">Биржи</div>
+            <div class="tile-value" id="tile-exchanges"><span class="skeleton" style="display:inline-block;width:50px;height:22px"></span></div>
+            <div class="tile-sub" id="tile-exchanges-sub"></div>
+        </div>
+        <div class="tile">
+            <div class="tile-label">Средний тренд дня</div>
+            <div class="tile-value" id="tile-avg"><span class="skeleton" style="display:inline-block;width:70px;height:22px"></span></div>
+            <div class="tile-sub" id="tile-avg-sub"></div>
+        </div>
+        <div class="tile">
+            <div class="tile-label">Лидер дня</div>
+            <div class="ticker-big" id="tile-best"><span class="skeleton" style="display:inline-block;width:70px;height:20px"></span></div>
+            <div class="tile-sub" id="tile-best-sub"></div>
+        </div>
+    </div>
+
+    <!-- Распределение по биржам + таблица инструментов -->
+    <div class="grid-main section">
+        <div class="card" id="alloc-card">
+            <div class="card-head">
+                <h2>Распределение</h2>
+                <div class="period-switch">
+                    <button class="period-btn split-btn active" data-split="exchange" onclick="selectSplit('exchange')">Биржи</button>
+                    <button class="period-btn split-btn" data-split="currency" onclick="selectSplit('currency')">Валюты</button>
+                </div>
+            </div>
+            <div class="chart-wrap"><canvas id="pie-chart"></canvas></div>
+            <div class="donut-legend" id="donut-legend"></div>
+        </div>
+        <div class="card" id="instruments-card">
+            <div class="card-head">
+                <h2>Инструменты</h2>
+                <div class="head-actions">
+                    <input type="text" class="search-input" id="search-input" placeholder="Поиск: тикер, имя, ISIN…" oninput="renderTable()">
+                    <button class="btn-ghost" onclick="exportCsv()">CSV</button>
+                </div>
+            </div>
+            <div class="table-scroll" id="instruments-table">
+                <div class="loading">Загрузка справочника…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Добавить инструмент -->
+    <div class="card section">
+        <div class="card-head"><h2>Добавить инструмент</h2></div>
+        <div class="instrument-form">
+            <div class="field">
+                <label for="new-ticker">Тикер</label>
+                <input type="text" id="new-ticker" placeholder="SAP" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="field">
+                <label for="new-name">Название</label>
+                <input type="text" id="new-name" placeholder="SAP SE" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="new-currency">Валюта</label>
+                <input type="text" id="new-currency" placeholder="EUR" maxlength="3" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="field">
+                <label for="new-exchange">Биржа</label>
+                <select id="new-exchange"></select>
+            </div>
+            <div class="field">
+                <label for="new-isin">ISIN</label>
+                <input type="text" id="new-isin" placeholder="DE0007164600" maxlength="12" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <button class="btn-primary" id="add-btn" onclick="addInstrument()">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Динамика (бар) -->
+    <div class="section">
+        <div class="card" id="perf-card">
+            <div class="card-head">
+                <h2>Динамика инструментов за день</h2>
+                <span class="tile-sub" id="perf-note"></span>
+            </div>
+            <div class="chart-wrap tall"><canvas id="performance-chart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Биржи -->
+    <div class="card section">
+        <div class="card-head"><h2>Биржи</h2></div>
+        <div class="exchange-form" style="margin-bottom:18px">
+            <div class="field">
+                <label for="ex-name">Название</label>
+                <input type="text" id="ex-name" placeholder="XETRA" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="ex-suffix">Суффикс</label>
+                <input type="text" id="ex-suffix" placeholder=".DE" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="ex-country">Страна</label>
+                <input type="text" id="ex-country" placeholder="Germany" autocomplete="off">
+            </div>
+            <button class="btn-primary" id="ex-add-btn" onclick="addExchange()">Добавить</button>
+        </div>
+        <div class="table-scroll" id="exchanges-table">
+            <div class="loading">Загрузка бирж…</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Модалка деталей инструмента -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modal-body"></div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+    // ===== Конфигурация: фронт отдаётся тем же Spring-приложением, поэтому базовый путь относительный =====
+    const API = "";
+
+    let chart = null;
+    let performanceChart = null;
+    let firstLoad = true;
+    let splitMode = "exchange";
+
+    let instruments = [];           // [{id, ticker, name, currency, exchangeName, categories[], isin}]
+    let exchanges = [];             // [{id, name, suffix, country}]
+    let priceById = {};             // id -> PriceResponse | {error:true}
+
+    const COLORS = ["#3987e5", "#199e70", "#c98500", "#9085e9", "#e66767", "#d55181", "#d95926"];
+    const OTHER_COLOR = "#6b7482";
+    let colorByKey = {};            // ключ распределения (биржа/валюта) -> цвет
+    const CSS = {
+        surface: "#141821", grid: "#232a35",
+        text2: "#9aa4b2", text3: "#6b7482",
+        accent: "#3987e5", up: "#0ca30c", down: "#e05d5d"
+    };
+
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = CSS.text3;
+
+    function tooltipStyle() {
+        return {
+            backgroundColor: "#1a2029",
+            borderColor: "rgba(255,255,255,0.13)",
+            borderWidth: 1,
+            titleColor: "#f2f5f9",
+            bodyColor: "#9aa4b2",
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: false
+        };
+    }
+
+    // ===== Тосты =====
+    function toast(text, type = "info") {
+        const el = document.createElement("div");
+        el.className = "toast " + type;
+        el.innerHTML = '<span class="dot"></span><span></span>';
+        el.lastElementChild.textContent = text;
+        document.getElementById("toasts").appendChild(el);
+        setTimeout(() => {
+            el.classList.add("out");
+            setTimeout(() => el.remove(), 350);
+        }, 3500);
+    }
+
+    // ===== HTTP =====
+    async function api(path, options = {}) {
+        return fetch(API + path, {
+            ...options,
+            headers: { ...(options.headers || {}) }
+        });
+    }
+
+    async function readError(resp, fallback) {
+        try {
+            const err = await resp.json();
+            if (err && (err.message || err.error)) return err.message || err.error;
+        } catch (_) { /* тело не JSON */ }
+        return fallback + " (" + resp.status + ")";
+    }
+
+    // ===== Полное обновление =====
+    async function refreshAll() {
+        const btn = document.getElementById("refresh-btn");
+        btn.disabled = true;
+        if (!firstLoad) {
+            for (const id of ["tiles", "alloc-card", "instruments-card"])
+                document.getElementById(id).classList.add("refreshing");
+        }
+        try {
+            await Promise.all([loadExchanges(), loadInstruments()]);
+            renderExchanges();
+            renderExchangeOptions();
+            render();
+            await loadPrices(false);
+            const t = new Date();
+            document.getElementById("updated-at").textContent =
+                "Обновлено " + t.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+            firstLoad = false;
+        } finally {
+            btn.disabled = false;
+            for (const id of ["tiles", "alloc-card", "instruments-card"])
+                document.getElementById(id).classList.remove("refreshing");
+        }
+    }
+
+    // ===== Загрузка данных =====
+    async function loadInstruments() {
+        try {
+            const resp = await api("/instrument/getAllWithCategory");
+            if (!resp.ok) { toast("Не удалось загрузить инструменты (" + resp.status + ")", "err"); return; }
+            instruments = await resp.json();
+        } catch (e) {
+            toast("Сервис недоступен — запущен ли backend на :8085?", "err");
+            document.getElementById("instruments-table").innerHTML =
+                '<div class="loading">Сервис недоступен</div>';
+        }
+    }
+
+    async function loadExchanges() {
+        try {
+            const resp = await api("/exchange");
+            if (!resp.ok) return;
+            exchanges = await resp.json();
+        } catch (e) { /* биржи не критичны для остального */ }
+    }
+
+    // Цены грузим по одной (кэшируются на бэке; refresh=true заставляет провайдера ответить)
+    async function loadPrices(force) {
+        if (!instruments.length) return;
+        const btn = document.getElementById("refresh-prices-btn");
+        btn.disabled = true;
+        const path = force ? "/price/refresh" : "/price";
+        const method = force ? "POST" : "GET";
+        try {
+            await Promise.allSettled(instruments.map(async (ins) => {
+                try {
+                    const resp = await api("/instrument/" + ins.id + path, { method });
+                    priceById[ins.id] = resp.ok ? await resp.json() : { error: true };
+                } catch (e) {
+                    priceById[ins.id] = { error: true };
+                }
+            }));
+            renderTiles();
+            renderTable();
+            renderPerformance();
+            if (force) toast("Цены обновлены", "ok");
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // ===== Рендер всего =====
+    function render() {
+        renderTiles();
+        renderChart();
+        renderTable();
+        renderPerformance();
+    }
+
+    function pricedList() {
+        return instruments
+            .map(ins => ({ ins, p: priceById[ins.id] }))
+            .filter(x => x.p && !x.p.error && x.p.changePercent != null);
+    }
+
+    // ===== Плитки =====
+    function renderTiles() {
+        document.getElementById("total-instruments").textContent = instruments.length;
+
+        const curs = new Set(instruments.map(i => i.currency).filter(Boolean));
+        const exCount = new Set(instruments.map(i => i.exchangeName).filter(Boolean)).size;
+        document.getElementById("instruments-note").textContent =
+            exCount + " бирж · " + curs.size + " валют";
+
+        document.getElementById("tile-exchanges").textContent = exchanges.length;
+        document.getElementById("tile-exchanges-sub").textContent =
+            [...new Set(exchanges.map(e => e.country))].filter(Boolean).length + " стран";
+
+        const priced = pricedList();
+        const avgEl = document.getElementById("tile-avg");
+        const avgSub = document.getElementById("tile-avg-sub");
+        if (!priced.length) {
+            avgEl.textContent = "—";
+            avgEl.className = "tile-value flat";
+            avgSub.textContent = "Нет котировок";
+        } else {
+            const avg = priced.reduce((s, x) => s + Number(x.p.changePercent), 0) / priced.length;
+            avgEl.textContent = formatSignedPercent(avg);
+            avgEl.className = "tile-value " + plClass2(avg);
+            avgSub.textContent = priced.length + " с котировкой";
+        }
+
+        const best = priced.length
+            ? priced.reduce((a, b) => Number(a.p.changePercent) >= Number(b.p.changePercent) ? a : b)
+            : null;
+        const bestEl = document.getElementById("tile-best");
+        const bestSub = document.getElementById("tile-best-sub");
+        if (!best) {
+            bestEl.textContent = "—"; bestSub.textContent = "";
+        } else {
+            bestEl.textContent = best.ins.ticker;
+            const cls = plClass2(best.p.changePercent);
+            bestSub.innerHTML = '<span class="pill ' + cls + '">' + formatSignedPercent(best.p.changePercent) + '</span> ' +
+                '<span style="color:var(--text-3)">' + escapeHtml((best.ins.name || "").trim()) + '</span>';
+        }
+    }
+
+    // ===== Донат распределения =====
+    function selectSplit(mode) {
+        splitMode = mode;
+        document.querySelectorAll(".split-btn").forEach(b => b.classList.toggle("active", b.dataset.split === mode));
+        renderChart();
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById("pie-chart");
+        if (chart) chart.destroy();
+
+        const counts = {};
+        for (const ins of instruments) {
+            const key = (splitMode === "currency" ? ins.currency : ins.exchangeName) || "—";
+            counts[key] = (counts[key] || 0) + 1;
+        }
+        let entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+        const top = entries.slice(0, 6);
+        const rest = entries.slice(6);
+        const labels = top.map(e => e[0]);
+        const values = top.map(e => e[1]);
+        const colors = top.map((_, i) => COLORS[i]);
+        if (rest.length) {
+            labels.push("Другие");
+            values.push(rest.reduce((s, e) => s + e[1], 0));
+            colors.push(OTHER_COLOR);
+        }
+        colorByKey = {};
+        labels.forEach((l, i) => colorByKey[l] = colors[i]);
+        const total = values.reduce((s, v) => s + v, 0);
+
+        if (!total) {
+            const legendEl = document.getElementById("donut-legend");
+            legendEl.innerHTML = '<div class="empty-state" style="padding:20px">Нет данных</div>';
+            return;
+        }
+
+        chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: CSS.surface,
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "70%",
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltipStyle(),
+                        callbacks: {
+                            label: (c) => " " + c.label + ": " + c.parsed + " шт" +
+                                (total ? " (" + (c.parsed / total * 100).toFixed(1) + " %)" : "")
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: "centerText",
+                beforeDraw(ch) {
+                    const { ctx, chartArea } = ch;
+                    if (!chartArea) return;
+                    const cx = (chartArea.left + chartArea.right) / 2;
+                    const cy = (chartArea.top + chartArea.bottom) / 2;
+                    ctx.save();
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = CSS.text3;
+                    ctx.font = "600 11px Inter, sans-serif";
+                    ctx.fillText("ВСЕГО", cx, cy - 12);
+                    ctx.fillStyle = "#f2f5f9";
+                    ctx.font = "700 20px Inter, sans-serif";
+                    ctx.fillText(String(total), cx, cy + 10);
+                    ctx.restore();
+                }
+            }]
+        });
+
+        const legendEl = document.getElementById("donut-legend");
+        legendEl.innerHTML = labels.map((l, i) =>
+            '<div class="donut-legend-item">' +
+                '<span class="swatch" style="background:' + colors[i] + '"></span>' +
+                '<span class="lt">' + escapeHtml(l) + '</span>' +
+                '<span class="lp">' + values[i] + ' · ' + (values[i] / total * 100).toFixed(1) + ' %</span>' +
+            '</div>'
+        ).join("");
+    }
+
+    // ===== Таблица инструментов: сортировка + поиск =====
+    const SORT_COLS = [
+        { key: "ticker",       label: "Тикер",   num: false },
+        { key: "exchangeName", label: "Биржа",   num: false },
+        { key: "currency",     label: "Валюта",  num: false },
+        { key: "isin",         label: "ISIN",    num: false },
+        { key: "price",        label: "Цена",    num: true },
+        { key: "changePercent",label: "Δ день",  num: true }
+    ];
+    let sortState = { key: "ticker", dir: 1 };
+
+    function setSort(key) {
+        if (sortState.key === key) sortState.dir = -sortState.dir;
+        else sortState = { key, dir: key === "price" || key === "changePercent" ? -1 : 1 };
+        renderTable();
+    }
+
+    function sortVal(ins, key) {
+        if (key === "price") {
+            const p = priceById[ins.id];
+            return (p && !p.error && p.price != null) ? Number(p.price) : -Infinity;
+        }
+        if (key === "changePercent") {
+            const p = priceById[ins.id];
+            return (p && !p.error && p.changePercent != null) ? Number(p.changePercent) : -Infinity;
+        }
+        return (ins[key] || "").toString().toLowerCase();
+    }
+
+    function renderTable() {
+        const el = document.getElementById("instruments-table");
+        if (!instruments.length) {
+            el.innerHTML = '<div class="empty-state"><div class="big">📊</div>' +
+                'Инструментов пока нет<div class="hint">Добавьте первый в форме ниже</div></div>';
+            return;
+        }
+
+        const q = document.getElementById("search-input").value.trim().toLowerCase();
+        let rows = instruments.filter(i =>
+            !q ||
+            (i.ticker || "").toLowerCase().includes(q) ||
+            (i.name || "").toLowerCase().includes(q) ||
+            (i.isin || "").toLowerCase().includes(q) ||
+            (i.categories || []).some(c => c.toLowerCase().includes(q)));
+
+        const { key, dir } = sortState;
+        const numeric = key === "price" || key === "changePercent";
+        rows = [...rows].sort((a, b) => {
+            const va = sortVal(a, key), vb = sortVal(b, key);
+            if (numeric) return dir * (va - vb);
+            return dir * String(va).localeCompare(String(vb));
+        });
+
+        let html = '<table><thead><tr>';
+        for (const c of SORT_COLS) {
+            const sorted = sortState.key === c.key;
+            html += '<th class="sortable' + (c.num ? ' num' : '') + (sorted ? ' sorted' : '') + '" ' +
+                'onclick="setSort(\'' + c.key + '\')" title="Сортировать">' + c.label +
+                '<span class="arr">' + (sorted ? (sortState.dir === 1 ? '▲' : '▼') : '') + '</span></th>';
+        }
+        html += '<th>Категории</th><th class="num"></th></tr></thead><tbody>';
+
+        for (const ins of rows) {
+            const p = priceById[ins.id];
+            const dot = colorByKey[splitMode === "currency" ? ins.currency : ins.exchangeName]
+                ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' +
+                    colorByKey[splitMode === "currency" ? ins.currency : ins.exchangeName] + ';margin-right:8px;vertical-align:1px"></span>'
+                : '';
+
+            let priceCell, changeCell;
+            if (!p) {
+                priceCell = '<td class="num"><span class="skeleton" style="display:inline-block;width:56px;height:13px"></span></td>';
+                changeCell = '<td class="num"></td>';
+            } else if (p.error || p.price == null) {
+                priceCell = '<td class="num"><span class="badge-na">нет цены</span></td>';
+                changeCell = '<td class="num">—</td>';
+            } else {
+                const stale = p.stale ? '<span class="badge-stale">stale</span>' : '';
+                priceCell = '<td class="num">' + formatMoney(p.price) + ' ' + escapeHtml(p.currency || ins.currency) + stale + '</td>';
+                changeCell = p.changePercent != null
+                    ? '<td class="num ' + plClass(p.changePercent) + '">' + formatSignedPercent(p.changePercent) + '</td>'
+                    : '<td class="num">—</td>';
+            }
+
+            const cats = (ins.categories || []).length
+                ? '<div class="tags">' + ins.categories.map(c => '<span class="tag">' + escapeHtml(c) + '</span>').join('') + '</div>'
+                : '<span style="color:var(--text-3)">—</span>';
+
+            html += '<tr class="clickable" onclick="openModal(\'' + ins.id + '\')">' +
+                '<td>' + dot + '<span class="ticker">' + escapeHtml(ins.ticker) + '</span>' +
+                    '<div class="name-dim">' + escapeHtml((ins.name || "").trim()) + '</div></td>' +
+                '<td>' + escapeHtml(ins.exchangeName || "—") + '</td>' +
+                '<td><span class="cur-chip">' + escapeHtml(ins.currency || "—") + '</span></td>' +
+                '<td style="color:var(--text-3);font-size:12px">' + escapeHtml(ins.isin || "—") + '</td>' +
+                priceCell + changeCell +
+                '<td>' + cats + '</td>' +
+                '<td class="num"><div class="row-actions" onclick="event.stopPropagation()">' +
+                    '<button class="row-mini" title="Обновить цену" onclick="refreshOne(this,\'' + ins.id + '\')">⟳</button>' +
+                    '<button class="row-del" title="Удалить инструмент" onclick="deleteInstrument(this,\'' + ins.id + '\',\'' +
+                        escapeHtml(ins.ticker).replace(/'/g, "\\'") + '\')">✕</button>' +
+                '</div></td></tr>';
+        }
+
+        html += '</tbody></table>';
+        if (!rows.length)
+            html = '<div class="empty-state">Ничего не найдено по запросу «' + escapeHtml(q) + '»</div>';
+        el.innerHTML = html;
+    }
+
+    // ===== Бар-чарт динамики =====
+    function renderPerformance() {
+        const ctx = document.getElementById("performance-chart");
+        if (performanceChart) performanceChart.destroy();
+
+        const valid = pricedList().sort((a, b) => Number(b.p.changePercent) - Number(a.p.changePercent));
+        document.getElementById("perf-note").textContent =
+            valid.length ? valid.length + " инструментов с котировкой" : "";
+
+        if (!valid.length) {
+            ctx.getContext("2d").clearRect(0, 0, ctx.width, ctx.height);
+            return;
+        }
+
+        performanceChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: valid.map(x => x.ins.ticker),
+                datasets: [{
+                    label: "Δ, %",
+                    data: valid.map(x => Number(x.p.changePercent)),
+                    backgroundColor: valid.map(x => Number(x.p.changePercent) >= 0 ? CSS.up : CSS.down),
+                    borderRadius: 4,
+                    borderSkipped: "start",
+                    maxBarThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltipStyle(),
+                        callbacks: { label: (c) => " " + (c.parsed.y >= 0 ? "+" : "") + c.parsed.y.toFixed(2) + " %" }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { color: CSS.grid },
+                        ticks: { color: CSS.text3, font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: CSS.grid, lineWidth: 1 },
+                        border: { display: false },
+                        ticks: { color: CSS.text3, font: { size: 11 }, callback: (v) => v + " %" }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== Биржи =====
+    function renderExchangeOptions() {
+        const sel = document.getElementById("new-exchange");
+        const prev = sel.value;
+        sel.innerHTML = exchanges.length
+            ? exchanges.map(e => '<option value="' + escapeHtml(e.name) + '">' + escapeHtml(e.name) + ' (' + escapeHtml(e.suffix) + ')</option>').join("")
+            : '<option value="">Сначала добавьте биржу</option>';
+        if (prev) sel.value = prev;
+    }
+
+    function renderExchanges() {
+        const el = document.getElementById("exchanges-table");
+        if (!exchanges.length) {
+            el.innerHTML = '<div class="empty-state">Бирж пока нет<div class="hint">Добавьте первую в форме выше</div></div>';
+            return;
+        }
+        const counts = {};
+        for (const ins of instruments) counts[ins.exchangeName] = (counts[ins.exchangeName] || 0) + 1;
+
+        let html = '<table><thead><tr>' +
+            '<th>Название</th><th>Суффикс</th><th>Страна</th><th class="num">Инструментов</th><th class="num"></th>' +
+            '</tr></thead><tbody>';
+        for (const e of [...exchanges].sort((a, b) => a.name.localeCompare(b.name))) {
+            html += '<tr>' +
+                '<td><span class="ticker">' + escapeHtml(e.name) + '</span></td>' +
+                '<td><span class="cur-chip">' + escapeHtml(e.suffix) + '</span></td>' +
+                '<td style="color:var(--text-2)">' + escapeHtml(e.country) + '</td>' +
+                '<td class="num">' + (counts[e.name] || 0) + '</td>' +
+                '<td class="num"><button class="row-del" title="Удалить биржу" onclick="deleteExchange(this,\'' + e.id + '\',\'' +
+                    escapeHtml(e.name).replace(/'/g, "\\'") + '\')">✕</button></td>' +
+                '</tr>';
+        }
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    // ===== Действия: инструменты =====
+    async function addInstrument() {
+        const ticker = document.getElementById("new-ticker").value.trim().toUpperCase();
+        const name = document.getElementById("new-name").value.trim();
+        const currency = document.getElementById("new-currency").value.trim().toUpperCase();
+        const exchangeName = document.getElementById("new-exchange").value;
+        const isin = document.getElementById("new-isin").value.trim().toUpperCase();
+        const btn = document.getElementById("add-btn");
+
+        if (!ticker || !name || !currency || !exchangeName) {
+            toast("Заполните тикер, название, валюту и биржу", "err");
+            return;
+        }
+        if (currency.length !== 3) { toast("Валюта — 3 буквы (например EUR)", "err"); return; }
+
+        btn.disabled = true; btn.textContent = "Добавление…";
+        try {
+            const resp = await api("/instrument", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ticker, name, currency, exchangeName, isin: isin || null })
+            });
+            if (!resp.ok && resp.status !== 201) {
+                toast(await readError(resp, "Не удалось добавить инструмент"), "err");
+                return;
+            }
+            toast(ticker + " добавлен", "ok");
+            document.getElementById("new-ticker").value = "";
+            document.getElementById("new-name").value = "";
+            document.getElementById("new-isin").value = "";
+            await refreshAll();
+        } catch (e) {
+            toast("Сервис недоступен", "err");
+        } finally {
+            btn.disabled = false; btn.textContent = "Добавить";
+        }
+    }
+
+    async function deleteInstrument(btn, id, ticker) {
+        if (!btn.classList.contains("armed")) {
+            btn.classList.add("armed"); btn.textContent = "Точно?";
+            setTimeout(() => { if (btn.isConnected) { btn.classList.remove("armed"); btn.textContent = "✕"; } }, 3000);
+            return;
+        }
+        try {
+            const resp = await api("/instrument/" + id, { method: "DELETE" });
+            if (!resp.ok && resp.status !== 204) { toast(await readError(resp, "Не удалось удалить"), "err"); return; }
+            toast(ticker + " удалён", "ok");
+            delete priceById[id];
+            await refreshAll();
+        } catch (e) { toast("Сервис недоступен", "err"); }
+    }
+
+    async function refreshOne(btn, id) {
+        btn.disabled = true; btn.textContent = "…";
+        try {
+            const resp = await api("/instrument/" + id + "/price/refresh", { method: "POST" });
+            priceById[id] = resp.ok ? await resp.json() : { error: true };
+            if (!resp.ok) toast(await readError(resp, "Цена недоступна"), "err");
+            renderTiles(); renderTable(); renderPerformance();
+        } catch (e) {
+            toast("Сервис недоступен", "err");
+        } finally {
+            btn.disabled = false; btn.textContent = "⟳";
+        }
+    }
+
+    // ===== Действия: биржи =====
+    async function addExchange() {
+        const name = document.getElementById("ex-name").value.trim();
+        const suffix = document.getElementById("ex-suffix").value.trim();
+        const country = document.getElementById("ex-country").value.trim();
+        const btn = document.getElementById("ex-add-btn");
+        if (!name || !suffix || !country) { toast("Заполните название, суффикс и страну", "err"); return; }
+
+        btn.disabled = true; btn.textContent = "Добавление…";
+        try {
+            const resp = await api("/exchange", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, suffix, country })
+            });
+            if (!resp.ok && resp.status !== 201) { toast(await readError(resp, "Не удалось добавить биржу"), "err"); return; }
+            toast(name + " добавлена", "ok");
+            document.getElementById("ex-name").value = "";
+            document.getElementById("ex-suffix").value = "";
+            document.getElementById("ex-country").value = "";
+            await refreshAll();
+        } catch (e) {
+            toast("Сервис недоступен", "err");
+        } finally {
+            btn.disabled = false; btn.textContent = "Добавить";
+        }
+    }
+
+    async function deleteExchange(btn, id, name) {
+        if (!btn.classList.contains("armed")) {
+            btn.classList.add("armed"); btn.textContent = "Точно?";
+            setTimeout(() => { if (btn.isConnected) { btn.classList.remove("armed"); btn.textContent = "✕"; } }, 3000);
+            return;
+        }
+        try {
+            const resp = await api("/exchange/" + id, { method: "DELETE" });
+            if (!resp.ok && resp.status !== 204) { toast(await readError(resp, "Не удалось удалить биржу"), "err"); return; }
+            toast(name + " удалена", "ok");
+            await refreshAll();
+        } catch (e) { toast("Сервис недоступен", "err"); }
+    }
+
+    // ===== Модалка деталей =====
+    let modalId = null;
+
+    function openModal(id) {
+        modalId = id;
+        renderModal();
+        document.getElementById("modal").classList.add("open");
+        loadTrend(id, 30);
+    }
+    function closeModal() {
+        document.getElementById("modal").classList.remove("open");
+        modalId = null;
+    }
+
+    function renderModal() {
+        const ins = instruments.find(i => i.id === modalId);
+        if (!ins) return;
+        const p = priceById[ins.id];
+        const body = document.getElementById("modal-body");
+
+        let priceBlock;
+        if (!p || p.error || p.price == null) {
+            priceBlock = '<div class="badge-na" style="font-size:13px;padding:6px 12px">Котировка недоступна</div>' +
+                '<button class="btn-ghost" style="margin-top:12px" onclick="modalRefresh()">Запросить цену</button>';
+        } else {
+            const cls = p.changePercent != null ? plClass2(p.changePercent) : "flat";
+            const chgTxt = p.changePercent != null
+                ? formatSignedMoney(p.changeAbsolute, p.currency) + " · " + formatSignedPercent(p.changePercent)
+                : "";
+            priceBlock =
+                '<div class="price-hero">' +
+                    '<span class="price-big">' + formatMoney(p.price) + ' ' + escapeHtml(p.currency) + '</span>' +
+                    '<span class="price-change ' + cls + '">' + chgTxt + '</span>' +
+                    (p.stale ? '<span class="badge-stale">stale</span>' : '') +
+                '</div>' +
+                '<div class="kv-grid">' +
+                    kv("Пред. закрытие", p.previousClose != null ? formatMoney(p.previousClose) + ' ' + escapeHtml(p.currency) : "—") +
+                    kv("Источник", escapeHtml(p.source || "—")) +
+                    kv("Биржа", escapeHtml(p.exchangeName || ins.exchangeName || "—")) +
+                    kv("Обновлено", p.asOf ? new Date(p.asOf).toLocaleString("ru-RU") : "—") +
+                '</div>' +
+                '<button class="btn-ghost" style="margin-top:16px" onclick="modalRefresh()">Обновить цену</button>';
+        }
+
+        const cats = (ins.categories || []).length
+            ? '<div class="tags">' + ins.categories.map(c => '<span class="tag">' + escapeHtml(c) + '</span>').join('') + '</div>'
+            : '<span style="color:var(--text-3);font-size:13px">Категорий нет</span>';
+
+        body.innerHTML =
+            '<div class="modal-head">' +
+                '<div><h2>' + escapeHtml(ins.ticker) + '</h2>' +
+                    '<div class="sub">' + escapeHtml(ins.name || "") + ' · ' + escapeHtml(ins.exchangeName || "") +
+                    (ins.isin ? ' · ' + escapeHtml(ins.isin) : "") + '</div></div>' +
+                '<button class="modal-close" onclick="closeModal()">✕</button>' +
+            '</div>' +
+            priceBlock +
+            '<div class="modal-section">' +
+                '<h3>Тренд <div class="period-switch">' +
+                    [7, 30, 90].map(d => '<button class="period-btn trend-btn' + (d === 30 ? ' active' : '') +
+                        '" data-days="' + d + '" onclick="loadTrend(\'' + ins.id + '\',' + d + ')">' + d + 'д</button>').join('') +
+                '</div></h3>' +
+                '<div id="trend-body"><div class="trend-sub">Загрузка тренда…</div></div>' +
+            '</div>' +
+            '<div class="modal-section">' +
+                '<h3>Категории</h3>' + cats +
+                '<div class="cat-add">' +
+                    '<input type="text" id="cat-input" placeholder="Новая категория…" onkeydown="if(event.key===\'Enter\')addCategory()">' +
+                    '<button class="btn-primary" onclick="addCategory()">Добавить</button>' +
+                '</div>' +
+            '</div>';
+    }
+
+    function kv(k, v) {
+        return '<div class="kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
+    }
+
+    async function modalRefresh() {
+        if (!modalId) return;
+        const resp = await api("/instrument/" + modalId + "/price/refresh", { method: "POST" }).catch(() => null);
+        if (resp && resp.ok) {
+            priceById[modalId] = await resp.json();
+            toast("Цена обновлена", "ok");
+        } else {
+            priceById[modalId] = { error: true };
+            toast(resp ? await readError(resp, "Цена недоступна") : "Сервис недоступен", "err");
+        }
+        renderModal(); renderTiles(); renderTable(); renderPerformance();
+        loadTrend(modalId, 30);
+    }
+
+    async function loadTrend(id, days) {
+        document.querySelectorAll(".trend-btn").forEach(b => b.classList.toggle("active", Number(b.dataset.days) === days));
+        const el = document.getElementById("trend-body");
+        if (!el) return;
+        try {
+            const resp = await api("/instrument/" + id + "/trend?days=" + days);
+            if (!resp.ok) { el.innerHTML = '<div class="trend-sub">Тренд недоступен</div>'; return; }
+            const t = await resp.json();
+            if (t.samples < 2 || t.changePercent == null) {
+                el.innerHTML = '<div class="trend-sub">Недостаточно снимков за ' + days + ' дн. (нужно ≥2)</div>';
+                return;
+            }
+            const cls = plClass2(t.changePercent);
+            el.innerHTML =
+                '<div class="trend-row">' +
+                    '<span class="trend-main ' + cls + '">' + formatSignedPercent(t.changePercent) + '</span>' +
+                    '<span class="trend-sub">' + formatMoney(t.from) + ' → ' + formatMoney(t.to) + ' ' + escapeHtml(t.currency || "") +
+                    ' · ' + formatSignedMoney(t.changeAbsolute, t.currency) + '</span>' +
+                '</div>' +
+                '<div class="trend-sub" style="margin-top:6px">' + t.samples + ' снимков · ' +
+                    (t.firstAsOf ? new Date(t.firstAsOf).toLocaleDateString("ru-RU") : "") + ' — ' +
+                    (t.lastAsOf ? new Date(t.lastAsOf).toLocaleDateString("ru-RU") : "") + '</div>';
+        } catch (e) {
+            el.innerHTML = '<div class="trend-sub">Сервис недоступен</div>';
+        }
+    }
+
+    async function addCategory() {
+        if (!modalId) return;
+        const input = document.getElementById("cat-input");
+        const category = input.value.trim();
+        if (!category) { toast("Введите название категории", "err"); return; }
+        try {
+            const resp = await api("/instrument/instruments/" + modalId + "/categories?category=" + encodeURIComponent(category), { method: "POST" });
+            if (!resp.ok && resp.status !== 204) { toast(await readError(resp, "Не удалось добавить категорию"), "err"); return; }
+            toast("Категория «" + category + "» добавлена", "ok");
+            input.value = "";
+            await loadInstruments();
+            const ins = instruments.find(i => i.id === modalId);
+            if (ins) { renderModal(); loadTrend(modalId, 30); }
+            renderTable(); renderChart();
+        } catch (e) { toast("Сервис недоступен", "err"); }
+    }
+
+    // ===== Экспорт CSV =====
+    function exportCsv() {
+        if (!instruments.length) { toast("Нет данных для экспорта", "err"); return; }
+        const head = ["Тикер", "Название", "Биржа", "Валюта", "ISIN", "Категории", "Цена", "Валюта цены", "Δ день %"];
+        const lines = [head.join(";")];
+        for (const ins of instruments) {
+            const p = priceById[ins.id];
+            const priced = p && !p.error;
+            lines.push([
+                ins.ticker,
+                '"' + (ins.name || "").replace(/"/g, '""') + '"',
+                ins.exchangeName || "", ins.currency || "", ins.isin || "",
+                '"' + (ins.categories || []).join(", ") + '"',
+                priced && p.price != null ? p.price : "",
+                priced ? (p.currency || "") : "",
+                priced && p.changePercent != null ? p.changePercent : ""
+            ].join(";"));
+        }
+        const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "instruments_" + new Date().toISOString().slice(0, 10) + ".csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("CSV выгружен", "ok");
+    }
+
+    // ===== Утилиты форматирования =====
+    function formatMoney(v) {
+        return Number(v).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function formatSignedMoney(v, cur) {
+        if (v == null) return "—";
+        const n = Number(v);
+        const sign = n > 0 ? "+" : n < 0 ? "−" : "";
+        return sign + formatMoney(Math.abs(n)) + (cur ? " " + cur : "");
+    }
+    function formatSignedPercent(v) {
+        const n = Number(v);
+        const sign = n > 0 ? "+" : n < 0 ? "−" : "";
+        return sign + formatMoney(Math.abs(n)) + " %";
+    }
+    function plClass(v) {
+        const n = Number(v);
+        return n > 0 ? "pl-up" : n < 0 ? "pl-down" : "";
+    }
+    function plClass2(v) {
+        const n = Number(v);
+        return n > 0 ? "up" : n < 0 ? "down" : "flat";
+    }
+    function escapeHtml(s) {
+        const div = document.createElement("div");
+        div.textContent = s ?? "";
+        return div.innerHTML;
+    }
+
+    // "/" — фокус на поиск
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+        if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) {
+            e.preventDefault();
+            document.getElementById("search-input").focus();
+        }
+    });
+
+    // Старт
+    refreshAll();
+</script>
+</body>
+</html>
